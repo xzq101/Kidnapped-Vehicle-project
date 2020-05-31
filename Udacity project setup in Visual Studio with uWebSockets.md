@@ -51,6 +51,7 @@ Unfortunately [Udacity](https://www.udacity.com/) used an older version of **uWe
 First make sure that the **x64** platform is selected for the solution (if you don't have this setting on the toolbar, you can also change it in **Build → Configuration Manager → Active Solution Platform**):
 ![x64 platform](./figures/x64.png)
 Select the project in the **Solution Explorer** (in this case **path-planning**) and open up its properties (right click → Properties or Alt+Enter). Make sure that **All Configurations** and **x64** are active. Go to **Configuration Properties → C/C++ → Preprocessor**. Add this to **Preprocessor Definitions** (don't delete what's already there, just paste in front or after):
+
     UWS_VCPKG;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;
 Should look like this:
 ![predefines](./figures/predefines.png)
