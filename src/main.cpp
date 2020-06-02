@@ -25,6 +25,12 @@ string hasData(string s) {
   return "";
 }
 
+void mypause() 
+{ 
+  std::cout<<"Press [Enter] to continue . . .";
+  std::cin.get();
+} 
+
 int main() {
   uWS::Hub h;
 
@@ -36,6 +42,8 @@ int main() {
   double sigma_pos [3] = {0.3, 0.3, 0.01};
   // Landmark measurement uncertainty [x [m], y [m]]
   double sigma_landmark [2] = {0.3, 0.3};
+
+  // mypause();
 
   // Read map data
   Map map;
@@ -60,7 +68,12 @@ int main() {
         auto j = json::parse(s);
 
         string event = j[0].get<string>();
+
         
+        std::cout<<"event: "<<event<<std::endl;
+        mypause();
+        
+
         if (event == "telemetry") {
           // j[1] is the data JSON object
           if (!pf.initialized()) {
@@ -107,6 +120,7 @@ int main() {
             noisy_observations.push_back(obs);
           }
 
+ 
           // Update the weights and resample
           pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
           pf.resample();
