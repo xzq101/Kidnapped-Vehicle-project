@@ -67,12 +67,8 @@ int main() {
       if (s != "") {
         auto j = json::parse(s);
 
-        string event = j[0].get<string>();
-
-        
-        std::cout<<"event: "<<event<<std::endl;
-        mypause();
-        
+        string event = j[0].get<string>();  
+//        std::cout<<"event: "<<event<<std::endl;
 
         if (event == "telemetry") {
           // j[1] is the data JSON object
@@ -81,7 +77,8 @@ int main() {
             double sense_x = std::stod(j[1]["sense_x"].get<string>());
             double sense_y = std::stod(j[1]["sense_y"].get<string>());
             double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
-
+            std::cout<<"sense_x: "<<sense_x<<" "<<sense_y<<" "<<sense_theta<<std::endl;
+//            mypause();
             pf.init(sense_x, sense_y, sense_theta, sigma_pos);
           } else {
             // Predict the vehicle's next state from previous 
@@ -98,6 +95,10 @@ int main() {
           vector<LandmarkObs> noisy_observations;
           string sense_observations_x = j[1]["sense_observations_x"];
           string sense_observations_y = j[1]["sense_observations_y"];
+
+          std::cout<<"sense ob x "<<sense_observations_x<<std::endl;
+          std::cout<<"sense ob y "<<sense_observations_y<<std::endl;
+          mypause();
 
           vector<float> x_sense;
           std::istringstream iss_x(sense_observations_x);
