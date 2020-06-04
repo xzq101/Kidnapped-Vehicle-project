@@ -4,6 +4,7 @@
 #include <string>
 #include "json.hpp"
 #include "particle_filter.h"
+//#include "helper_functions.h"
 
 // for convenience
 using nlohmann::json;
@@ -25,12 +26,7 @@ string hasData(string s) {
   return "";
 }
 
-void mypause() 
-{ 
-  std::cout<<"Press [Enter] to continue . . .";
-  std::cin.get();
-} 
-
+ 
 int main() {
   uWS::Hub h;
 
@@ -98,7 +94,7 @@ int main() {
 
           std::cout<<"sense ob x "<<sense_observations_x<<std::endl;
           std::cout<<"sense ob y "<<sense_observations_y<<std::endl;
-          mypause();
+ //         mypause();
 
           vector<float> x_sense;
           std::istringstream iss_x(sense_observations_x);
