@@ -32,7 +32,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   (and others in this file).
    */
   std::default_random_engine gen;
-  num_particles = 10;  // TODO: Set the number of particles
+  num_particles = 100;  // TODO: Set the number of particles
 
   std::normal_distribution<double> dist_x(x, std[0]);
   std::normal_distribution<double> dist_y(y, std[1]);
@@ -43,7 +43,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
     P.x=dist_x(gen);
     P.y=dist_y(gen);
     P.theta=dist_theta(gen);
-    P.weight=1.0;
+    P.weight=1.0/num_particles;
 
     particles.push_back(P);
 	  weights.push_back(P.weight);
@@ -60,7 +60,35 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
    *  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
-
+ // std::cout<<" in prediction"<<std::endl; 
+  std::default_random_engine gen;
+  for (int i = 0; i < num_particles; ++i) {
+	  double particle_x = particles[i].x;
+	  double particle_y = particles[i].y;
+	  double particle_theta = particles[i].theta;
+	 
+	  double pred_x;
+	  double pred_y;
+	  double pred_theta;
+ 	  if (fabs(yaw_rate) < 0.0001) {
+	    pred_x = particle_x + velocity * cos(particle_theta) * delta_t;
+	    pred_y = particle_y + velocity * sin(particle_theta) * delta_t;
+	    pred_theta = particle_theta;
+	  } else {
+	    pred_x = particle_x + (velocity/yaw_rate) * (sin(particle_theta + (yaw_rate * delta_t)) - sin(particle_theta));
+	    pred_y = particle_y + (velocity/yaw_rate) * (cos(particle_theta) - cos(particle_theta + (yaw_rate * delta_t)));
+	    pred_theta = particle_theta + (yaw_rate * delta_t);
+	  }
+ 	  std::normal_distribution<double> dist_x(pred_x, std_pos[0]);
+	  std::normal_distribution<double> dist_y(pred_y, std_pos[1]);
+	  std::normal_distribution<double> dist_theta(pred_theta, std_pos[2]);
+//	  std::cout<<i<<" dist_x:"<<pred_x<<" dist_y:"<<pred_y<<" dist_th:"<<pred_theta<<std::endl; 
+	  particles[i].x = dist_x(gen);
+	  particles[i].y = dist_y(gen);
+	  particles[i].theta = dist_theta(gen);   
+ //   std::cout<<i<<"-2 dist_x:"<<particles[i].x<<" dist_y:"<<particles[i].y<<" dist_th:"<<particles[i].theta<<std::endl;
+  }
+ // mypause(); 
 }
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, 
@@ -187,15 +215,20 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 // get weight for each particle
   particles[i].weight=weight_per_observation;
   weight_sum+=weight_per_observation;
-  std::cout<<i<<" particles "<<particles[i].x<<" "<<particles[i].y<<" "<<particles[i].theta <<" w="<<particles[i].weight<<std::endl;
+ // std::cout<<i<<" particles "<<particles[i].x<<" "<<particles[i].y<<" "<<particles[i].theta <<" w="<<particles[i].weight<<std::endl;
 
   }
-  std::cout<<" weight_sum "<<weight_sum<<std::endl;
+// normalize wait function   
+//  std::cout<<" weight_sum "<<weight_sum<<std::endl;
   for(unsigned int i = 0; i < particles.size(); ++i){
     particles[i].weight=particles[i].weight/weight_sum;
-    std::cout<<i<<" particles-norm "<<particles[i].weight<<std::endl;
+    weights[i]=particles[i].weight;
+  //  std::cout<<i<<" particles-norm "<<particles[i].weight<<" "<<weights[i]<<std::endl;
+    
   }
-  mypause();  
+ // double max_w=*max_element(weights.begin(), weights.end());
+ // std::cout<<" max w:"<<max_w<<std::endl;
+   
 }
 
 void ParticleFilter::resample() {
@@ -206,6 +239,38 @@ void ParticleFilter::resample() {
    *   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
    */
 
+  double maxWeight=*max_element(weights.begin(), weights.end());
+
+    // Creating distributions.
+  std::default_random_engine gen;
+  std::uniform_real_distribution<double> distDouble(0.0, 2*maxWeight);
+
+ 
+  std::uniform_int_distribution<int> distInt(0, num_particles-1 );
+
+    // Generating initial index.
+  int particle_index = distInt(gen);
+//  std::cout<<" index: "<<particle_index<<" maxw "<<maxWeight<<" num_particles "<<num_particles<<std::endl;
+
+ 
+
+
+  double beta = 0.0;
+    // the wheel
+  vector<Particle> New_Particle;
+  for(int i = 0; i < num_particles; i++) {
+    double dbeta=distDouble(gen);
+    beta += dbeta;
+  //  std::cout<<i<<" dbeta:"<<dbeta<<std::endl;
+    while( beta > weights[particle_index]) {
+      beta -= weights[particle_index];
+      particle_index = (particle_index + 1) % num_particles;
+    }  
+  //  std::cout<<i<<" particle_index:"<<particle_index<<std::endl;  
+    New_Particle.push_back(particles[particle_index]);
+  }
+  particles =New_Particle;
+ // mypause(); 
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 

@@ -92,8 +92,8 @@ int main() {
           string sense_observations_x = j[1]["sense_observations_x"];
           string sense_observations_y = j[1]["sense_observations_y"];
 
-          std::cout<<"sense ob x "<<sense_observations_x<<std::endl;
-          std::cout<<"sense ob y "<<sense_observations_y<<std::endl;
+//          std::cout<<"sense ob x "<<sense_observations_x<<std::endl;
+//          std::cout<<"sense ob y "<<sense_observations_y<<std::endl;
  //         mypause();
 
           vector<float> x_sense;
@@ -110,7 +110,7 @@ int main() {
           std::istream_iterator<float>(),
           std::back_inserter(y_sense));
 
-          for (int i = 0; i < x_sense.size(); ++i) {
+          for (unsigned int i = 0; i < x_sense.size(); ++i) {
             LandmarkObs obs;
             obs.x = x_sense[i];
             obs.y = y_sense[i];
